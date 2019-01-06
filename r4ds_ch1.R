@@ -1,6 +1,6 @@
 library(tidyverse)
 
-# 第一步
+## 第一步 ##
 mpg
 ggplot(mpg) + 
   geom_point(aes(x = displ, y = hwy))
@@ -22,7 +22,7 @@ ggplot(mpg) +
 ggplot(mpg) + 
   geom_point(aes(x = displ, y = hwy, color = class))
 
-# Aesthetic Mappings (美學映射)
+## Aesthetic Mappings (美學映射) ##
 
 # exercise
 # 1 因為color的內容跟變數無關,應放在aes外面
@@ -57,7 +57,7 @@ ggplot(mpg) +
   facet_grid(drv ~ cyl)
 
 
-# Facets (面向)
+## Facets (面向) ##
 
 # exercise
 # 1
@@ -85,3 +85,56 @@ ggplot(mpg) +
 # facet_grid的列與行是由變數的levels而定
 
 # 6 因為比較符合畫框的長寬比例,不會過度延展
+
+
+## 幾何物件 (Geometric Objects) ##
+
+ggplot(mpg) +
+  geom_smooth(aes(x = displ, y = hwy, linetype = drv))
+ggplot(mpg) +
+  geom_smooth(aes(x = displ, y = hwy))
+ggplot(mpg) +
+  geom_smooth(aes(x = displ, y = hwy, group = drv))
+ggplot(mpg) +
+  geom_smooth(aes(x = displ, y = hwy, color = drv), show.legend = FALSE)
+
+ggplot(mpg, aes(x = displ, y = hwy)) +
+  geom_point() +
+  geom_smooth()
+
+ggplot(mpg, aes(x = displ, y = hwy)) +
+  geom_point(aes(color = class)) +
+  geom_smooth(
+    data = filter(mpg, class == 'subcompact'),
+    se = FALSE
+  )
+
+# exercise
+
+# 1 geom_line(), geom_boxplot(), geom_histogram(), geom_area()
+# 2
+ggplot(mpg, aes(x = displ, y = hwy, color = drv)) +
+  geom_point() +
+  geom_smooth(se = FALSE)
+# 3 取消圖示, 為了排版
+# 4 是否顯示信賴區間
+# 5 相同, 一個是global mapping, 一個是重複的local mapping, 作用一樣
+# 6
+ggplot(mpg, aes(x = displ, y = hwy)) +
+  geom_point() +
+  geom_smooth(se = FALSE)
+ggplot(mpg, aes(x = displ, y = hwy)) +
+  geom_point() +
+  geom_smooth(aes(group = drv), se = FALSE)
+ggplot(mpg, aes(x = displ, y = hwy, color = drv)) +
+  geom_point() +
+  geom_smooth(se = FALSE)
+ggplot(mpg, aes(x = displ, y = hwy)) +
+  geom_point(aes(color = drv)) +
+  geom_smooth(se = FALSE)
+ggplot(mpg, aes(x = displ, y = hwy)) +
+  geom_point(aes(color = drv)) +
+  geom_smooth(aes(linetype = drv), se = FALSE)
+ggplot(mpg, aes(x = displ, y = hwy)) +
+  geom_point(size = 6, color = 'white') +
+  geom_point(aes(color = drv), size = 3)
