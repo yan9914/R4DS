@@ -206,3 +206,100 @@ ggplot(diamonds) +
 ggplot(diamonds) +
   geom_bar(aes(x = cut, y = ..count../sum(..count..), fill = color)) +
   ylab('prop')
+
+
+## 位置調整 (Position Adjustments) ##
+
+ggplot(diamonds) +
+  geom_bar(aes(x = cut, fill = clarity))
+ggplot(diamonds, aes(x = cut, fill = clarity)) +
+  geom_bar(alpha = 1/4, position = 'identity')
+ggplot(diamonds, aes(x = cut, color = clarity)) +
+  geom_bar(fill = NA, position = 'identity')
+
+ggplot(diamonds, aes(x = cut, fill = clarity)) +
+  geom_bar(position = 'fill')
+ggplot(diamonds, aes(x = cut, fill = clarity)) +
+  geom_bar(position = 'dodge')
+
+ggplot(mpg) +   # 加點noise, 以避免overplotting
+  geom_point(aes(x = displ, y = hwy), position = 'jitter')
+ggplot(mpg) + 
+  geom_jitter(aes(x = displ, y = hwy))
+
+# exercise
+
+# 1 overplotting
+ggplot(mpg) +
+  geom_jitter(aes(x = cty, y = hwy))
+
+# 2
+?geom_jitter
+# height跟width分別控制上下跟左右的抖動
+
+# 3
+ggplot(mpg) +
+  geom_count(aes(x = cty, y = hwy))
+# 同樣是為了解決overplotting的問題
+# geom_count使用點的大小來分別較密集的點
+
+# 4
+?geom_boxplot
+# 預設的position為dodge
+ggplot(mpg) +
+  geom_boxplot(aes(x = drv, y = displ))
+
+
+## 座標系統 (Coordinate Systems) ##
+
+ggplot(mpg, aes(x = class, y = hwy)) +
+  geom_boxplot()
+ggplot(mpg, aes(x = class, y = hwy)) +
+  geom_boxplot() +
+  coord_flip()
+
+tw <- map_data('world', region = 'Taiwan')
+ggplot(tw, aes(x = long, y = lat, group = group)) +
+  geom_polygon(fill = 'white', color = 'black') +
+  coord_quickmap()
+
+bar <- ggplot(diamonds) +
+  geom_bar(
+    mapping = aes(x = cut, fill = cut),
+    show.legend = FALSE,
+    width = 1
+  ) +
+  theme(aspect.ratio = 1) +
+  labs(x = NULL, y = NULL)
+bar + coord_flip()
+bar + coord_polar()
+
+# exercise
+# 1
+ggplot(diamonds) +
+  geom_bar(
+    mapping = aes(x = 1, fill = cut),
+    position = 'fill'
+  ) +
+  labs(x = NULL, y = NULL) +
+  coord_polar('y') + 
+  theme(axis.text.y = element_blank(), 
+        axis.ticks.y = element_blank()
+  )
+# 2
+?labs
+# 座標名稱
+
+# 3 coord+quickmap() 用近似的投影法, 相對較快
+tw <- map_data('world', region = 'Taiwan')
+ggplot(tw, aes(x = long, y = lat, group = group)) +
+  geom_polygon(fill = 'white', color = 'black') +
+  coord_map()
+
+# 4
+ggplot(mpg, aes(x = cty, y = hwy)) +
+  geom_point() +
+  geom_abline() +
+  coord_fixed()
+# geom_abline在預設參數下給出y=x的直線
+# coord_fixed做到了固定比例尺的作用, 能看出x跟y真正的趨勢
