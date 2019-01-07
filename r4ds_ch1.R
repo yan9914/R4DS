@@ -138,3 +138,71 @@ ggplot(mpg, aes(x = displ, y = hwy)) +
 ggplot(mpg, aes(x = displ, y = hwy)) +
   geom_point(size = 6, color = 'white') +
   geom_point(aes(color = drv), size = 3)
+
+## 統計變換 (Statistical Transformations) ##
+
+ggplot(diamonds) +      # 每個geom都有一個預設的stat
+  geom_bar(aes(x = cut))
+ggplot(diamonds) +      # 每個stat都有一個預設的geom
+  stat_count(aes(x = cut))  
+
+demo <- tribble(
+  ~a, ~b,
+  'bar_1', 20,
+  'bar_2', 30,
+  'bar_3', 40
+)
+ggplot(demo) +      # 原始資料就包含長條的高度, 此時要改用stat_identity
+  geom_bar(aes(x = a, y = b), stat = 'identity')
+ggplot(diamonds) +
+  geom_bar(aes(x = cut, y = ..prop.., group = 1))
+
+ggplot(diamonds) +
+  stat_summary(
+    mapping = aes(x = cut, y = depth),
+    fun.ymin = min,
+    fun.ymax = max,
+    fun.y = median
+  )
+
+# exercise
+# 1
+?stat_summary
+?geom_pointrange
+
+ggplot(diamonds) +
+  geom_pointrange(
+    mapping = aes(x = cut, y = depth),
+    stat = 'summary',
+    fun.ymin = min,
+    fun.ymax = max,
+    fun.y = median
+  )
+
+# 2
+ggplot(diamonds) +  # geom_col有要求y值, 使用stat_identity
+  geom_col(aes(x = cut, y = depth))
+?geom_col
+ggplot(diamonds) +
+  geom_bar(aes(x = cut, y = depth), stat = 'identity')
+
+# 3 https://ggplot2.tidyverse.org/reference/
+
+# 4
+?stat_smooth
+# y, ymin, ymax, se
+# method, se, na.rm
+
+# 5   
+# 設定group = 1讓全部資料當作計算比例的分母
+# 1也可替換成其他數字或字串 ex: 2,100,'a'
+ggplot(diamonds) +
+  geom_bar(aes(x = cut, y = ..prop..))
+ggplot(diamonds) +
+  geom_bar(aes(x = cut, fill = color, y = ..prop..))
+
+ggplot(diamonds) +
+  geom_bar(aes(x = cut, y = ..prop.., group = 1))
+ggplot(diamonds) +
+  geom_bar(aes(x = cut, y = ..count../sum(..count..), fill = color)) +
+  ylab('prop')
