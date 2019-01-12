@@ -52,3 +52,30 @@ NA | TRUE   # for all logical or numeric x, (x | TRUE) == TRUE
 FALSE & NA  # for all logical or numeric x, (FASLE & x) == FALSE 
 NA*0        # 不等於0, 因為 Inf*0 在R裡無定義
 
+
+## 以arrange()安排資料列 ##
+
+arrange(flights, year, month, day)
+arrange(flights, desc(arr_delay))
+
+# NA永遠排最後
+df <- tibble(x = c(5, 2, NA))
+arrange(df, x)
+arrange(df, desc(x))
+
+# exercise
+
+# 1
+arrange(flights, desc(is.na(dep_time)), dep_time)
+# 2
+arrange(flights, desc(arr_delay))
+arrange(flights, dep_delay)
+# 3
+arrange(flights, desc(distance / air_time))
+# 4
+arrange(flights, desc(distance))
+arrange(flights, distance)
+
+
+
+
