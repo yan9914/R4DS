@@ -77,5 +77,45 @@ arrange(flights, desc(distance))
 arrange(flights, distance)
 
 
+## 以select()挑選資料欄 ##
 
+select(flights, year, month, day)
+select(flights, year:day)
+select(flights, -(year:day))
 
+# 改名
+select(flights, tail_num = tailnum)   # 不保留其他變數
+rename(flights, tail_num = tailnum)   # 會保留其他變數
+
+# 將變數移到最前面
+select(flights, time_hour, air_time, everything())
+# 將變數移到最後面
+select(flights, everything(), time_hour, air_time)  # 這樣做是無效的
+select(flights, -c(time_hour, air_time), time_hour, air_time)
+
+select(flights, starts_with('dep'))   # 變數名稱以dep開頭
+select(flights, ends_with('delay'))   # 變數名稱以delay結尾
+select(flights, contains('time'))     # 變數名稱包含time
+
+# 其他輔助函數
+# matches('正規表達式')   選擇符合該正規表達式的變數
+# num_range('x', 1:3)     挑選x1, x2, x3
+
+# exercise
+
+# 1
+select(flights, dep_time, dep_delay, arr_time, arr_delay)
+select(flights, starts_with('dep'), starts_with('arr'))
+
+# 2 呼叫過的不會重複呼叫
+select(flights, starts_with('dep'), ends_with('delay'))
+
+# 3
+?one_of
+vars <- c('year', 'month', 'day', 'dep_delay', 'arr_delay')
+select(flights, one_of(vars))
+
+# 4
+select(flights, contains('TIME')) # 預設不分大小寫
+?contains
+select(flights, contains('TIME', ignore.case = FALSE))
