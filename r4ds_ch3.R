@@ -119,3 +119,82 @@ select(flights, one_of(vars))
 select(flights, contains('TIME')) # 預設不分大小寫
 ?contains
 select(flights, contains('TIME', ignore.case = FALSE))
+
+
+## 以mutate()新增變數 ##
+flights_sml <- select(flights,
+                      year:day,
+                      ends_with('delay'),
+                      distance,
+                      air_time)
+mutate(flights_sml,
+       gain = arr_delay - dep_delay,
+       speed = distance / air_time *60)
+mutate(flights_sml,
+       gain = arr_delay - dep_delay,
+       hours = air_time / 60,
+       gain_per_hour = gain / hours)  # 可以使用前面新建立的變數
+# 只保留新變數
+transmute(flights,
+          gain = arr_delay - dep_delay,
+          hours = air_time / 60,
+          gain_per_hour = gain / hours)
+# 常用於建立新變數的函數
+# 加減乘除,邏輯比較
+# %/%, %%
+# log() ,log2(), log10()
+(x <- 1:10)
+lag(x)
+lead(x)
+cumsum(x)
+cummean(x)
+
+?ranking
+(y <- c(1, 2, 2, NA, 3, 4))
+rank(y)
+min_rank(y) # 與rank()有何不同?
+min_rank(desc(y))
+dense_rank(y)
+row_number(y)
+percent_rank(y)
+cume_dist(y)
+ntile(y, 2)
+
+# exercise
+
+# 1
+mutate(flights, 
+       dep_time_mins = dep_time%/%100 * 60 + dep_time%%100,
+       sched_dep_time_mins = sched_dep_time%/%100 * 60 + sched_dep_time%%100)
+time2mins <- function(x) x%/%100 * 60 +x%%100
+mutate(flights,
+       dep_time_mins = time2mins(dep_time),
+       sched_dep_time_mins = time2mins(sched_dep_time))
+# 2
+transmute(flights, air_time, arr_time - dep_time)
+transmute(flights, 
+          air_time, 
+          time2mins(arr_time) - time2mins(dep_time))
+# 跨越時區, 造成抵達時間減起飛時間不等於飛行時間
+# 時間跨過午夜12點
+
+# 3
+select(flights, dep_time, sched_dep_time, dep_delay)
+select(flights, dep_time, sched_dep_time, dep_delay) %>%
+  mutate(time_diff = (time2mins(dep_time) - time2mins(sched_dep_time)),
+         time_diff - dep_delay) %>%
+  filter(time_diff - dep_delay != 0)
+# 因為有過午夜
+
+# 4
+?min_rank
+mutate(flights, delay_rank = min_rank(desc(dep_delay))) %>%
+  filter(delay_rank <= 10) %>%
+  arrange(delay_rank) %>%
+  select(delay_rank, everything())
+
+# 5
+1:3 + 1:10 
+
+# 6
+?Trig
