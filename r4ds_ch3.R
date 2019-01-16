@@ -198,3 +198,47 @@ mutate(flights, delay_rank = min_rank(desc(dep_delay))) %>%
 
 # 6
 ?Trig
+
+
+## 使用summarize()的分組摘要 ##
+summarize(flights, delay = mean(dep_delay, na.rm = TRUE))
+
+by_day <- group_by(flights, year, month, day)
+summarize(by_day, delay = mean(dep_delay, na.rm = TRUE))
+
+delays <- flights %>%
+  group_by(dest) %>%
+  summarize(
+    count = n(),
+    dist = mean(distance, na.rm = TRUE),
+    delay = mean(arr_delay, na.rm = TRUE)
+  ) %>%
+  filter(count > 20, dest != 'HNL')
+
+not_cancelled <- flights %>% 
+  filter(!is.na(dep_delay), !is.na(arr_delay))
+not_cancelled %>%
+  group_by(year, month, day) %>%
+  summarize(mean = mean(dep_delay))
+
+# 進行任何彙總動作時, 最好包含總數或非缺失值的總數
+# 確保不是基於非常少量資料而得的結論
+delays <- not_cancelled %>%
+  group_by(tailnum) %>%
+  summarize(delay = mean(arr_delay))
+ggplot(delays, aes(x = delay)) +
+  geom_freqpoly(binwidth = 10)  # 有些飛機的"平均"誤點時間竟長達300分鐘
+
+delays <- not_cancelled %>%
+  group_by(tailnum) %>%
+  summarize(
+    delay = mean(arr_delay, na.rm = TRUE),
+    n = n()
+  )
+ggplot(delays, aes(x = n, y = delay)) +
+  geom_point(alpha = 1/10)    # 樣本數太低導致出現"平均"為300的極端值
+
+delays %>%
+  filter(n > 25) %>%
+  ggplot(aes(x = n, y = delay)) +
+  geom_point(alpha = 1/10)
