@@ -33,13 +33,14 @@ unusual <- diamonds %>%
 unusual
 
 # exercise
-# 1.
+# 1. x:長 y:寬 z:深
 ggplot(diamonds) +
   geom_histogram(aes(x = x), binwidth = 0.5)
 ggplot(diamonds) +
   geom_histogram(aes(x = y), binwidth = 0.5)
 ggplot(diamonds) +
   geom_histogram(aes(x = z), binwidth = 0.3)
+?diamonds
 # 2.
 ggplot(diamonds) +
   geom_histogram(aes(x = price))
@@ -58,3 +59,48 @@ ggplot(diamonds) +
   geom_histogram(aes(x = price), binwidth = 50) +
   xlim(0, 2000) +
   ylim(0, 1000)     # 超出的bar會被整條刪除
+
+## 缺失值 ##
+# 若資料中有異常值, 可選擇捨棄整筆資料, 但不建議如此
+diamonds2 <- diamonds %>% 
+  filter(between(y, 3, 20))
+# 第二種方式, 將異常值以NA取代
+diamonds2 <- diamonds %>%
+  mutate(y = ifelse(y < 3 | y > 20, NA, y))
+# 在ggplot2, 缺失值不會出現在圖表中, 但會發出警告
+ggplot(diamonds2, aes(x = x, y = y)) +
+  geom_point()
+ggplot(diamonds2, aes(x = x, y = y)) +
+  geom_point(na.rm = TRUE)
+# 想了解帶有缺失值的觀察與帶有紀錄值的觀察有何不同
+# 在nycflights13::flights中, dep_time的缺失值代表航班被取消
+# 比較取消與未取消航班的預訂起飛時間(sched_dep_time)
+nycflights13::flights %>%
+  mutate(
+    cancelled = is.na(dep_time),
+    sched_hour = sched_dep_time %/% 100,
+    sched_min = sched_dep_time %% 100,
+    sched_dep_time = sched_hour + sched_min / 60
+  ) %>%
+  ggplot(aes(sched_dep_time)) +
+  geom_freqpoly(
+    aes(color = cancelled),
+    binwidth = 1/4
+  ) # 這圖表並不是很好, 因為未取消比取消的航班多太多了
+
+# exercise
+# 1.
+nycflights13::flights %>%
+  ggplot(aes(x = dep_time)) +
+  geom_histogram(binwidth = 80)
+diamonds %>%    # NA被當成一類
+  mutate(cut = if_else(runif(n()) < 0.1, 
+                       NA_character_, 
+                       as.character(cut))) %>%
+  ggplot() +
+  geom_bar(mapping = aes(x = cut))
+# 2.
+sum(c(1, 2, 3, NA))
+sum(c(1, 2, 3, NA), na.rm = TRUE)
+mean(c(1, 2, 3, NA))
+mean(c(1, 2, 3, NA), na.rm = TRUE)
