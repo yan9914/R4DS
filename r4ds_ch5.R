@@ -104,3 +104,53 @@ sum(c(1, 2, 3, NA))
 sum(c(1, 2, 3, NA), na.rm = TRUE)
 mean(c(1, 2, 3, NA))
 mean(c(1, 2, 3, NA), na.rm = TRUE)
+
+
+## 共變異程度 ##
+
+# 類別變數 vs 連續變數
+ggplot(diamonds, aes(x = price)) +
+  geom_freqpoly(aes(color = cut), binwidth = 500)
+ggplot(diamonds) +
+  geom_bar(aes(x = cut))  # 總數差異過大
+ggplot(diamonds, aes(x = price, y = ..density..)) +
+  geom_freqpoly(aes(color = cut), binwidth = 500)
+ggplot(diamonds, aes(x = cut, y = price)) +
+  geom_boxplot()
+
+# reorder
+ggplot(mpg, aes(x = class, y = hwy)) +
+  geom_boxplot()
+ggplot(mpg) +       # 依中位數大小排序
+  geom_boxplot(
+    mapping = aes(
+      x = reorder(class, hwy, FUN = median),
+      y = hwy
+    )
+  )
+ggplot(mpg) + 
+  geom_boxplot(
+    mapping = aes(
+      x = reorder(class, hwy, FUN = median),
+      y = hwy
+    )
+  ) +
+  coord_flip()
+
+# exercise
+# 1.
+nycflights13::flights %>%
+  mutate(
+    cancelled = is.na(dep_time),
+    sched_hour = sched_dep_time %/% 100,
+    sched_min = sched_dep_time %% 100,
+    sched_dep_time = sched_hour + sched_min / 60
+  ) %>%
+  ggplot(aes(x = sched_dep_time, y = ..density..)) +
+  geom_freqpoly(
+    aes(color = cancelled),
+    binwidth = 1/2
+  )
+# 2.
+
+
